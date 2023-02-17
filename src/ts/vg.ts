@@ -67,29 +67,53 @@ function sortList(whichAttribute: string, products: Product[]): Product[] {
 /*
   2. Refaktorera funktionen createProductHtml :)
   */
+ 
+function updateFloatingCart() {
+  let quantity =  cartList.reduce((previousAmount: number, currentAmount: number) => { // Lägger ihop antalet produkter i listan
+      return previousAmount + currentAmount
+    }) 
+
+    let floatingCart = document.getElementById("floatingcartnumber") as HTMLElement; // Skriver antal i en varukorg som rör sig på sidan
+    floatingCart.innerHTML = "" + quantity;
+}
+
+function createHtmlDogImgContainer(dogClassName: string){
+    let imgDogContainer: HTMLDivElement = document.createElement("div");
+    imgDogContainer.className = "dogimgcontainer";
+    dogClassName = imgDogContainer.className;
+    return imgDogContainer
+}
+
+function createHtmlCartSymbolContainer(cartSymbolContainerClassName: string){
+let cartSymbolContainer: HTMLDivElement = document.createElement("div");
+    cartSymbolContainer.className = "cartSymbolContainer";
+    cartSymbolContainerClassName = cartSymbolContainer.className;
+    return cartSymbolContainer
+}
+
+function createHtmlCartSymbol (cartSymbolClassName: string) {
+  let cartSymbol: HTMLElement = document.createElement("i");
+    cartSymbol.className = "bi bi-bag-plus";
+    cartSymbolClassName = cartSymbol.className
+    return cartSymbol
+}
+
 class Cart {
   addToCart(i: number) {}
 }
-export let cartList = JSON.parse(localStorage.getItem("savedCartList") || "[]");
-export let productList = JSON.parse(localStorage.getItem("savedList") || "[]");
 
-export function createProductHtml() {
-  let quantity = 0;
-  for (let i = 0; i < cartList.length; i++) {
-    quantity += cartList[i].quantity;
-  }
-  let floatingCart = document.getElementById(
-    "floatingcartnumber"
-  ) as HTMLElement;
-  floatingCart.innerHTML = "" + quantity;
+export let cartList = JSON.parse(localStorage.getItem("savedCartList") || "[]");
+export let productList = JSON.parse(localStorage.getItem("savedProductList") || "[]");
+
+export function createProductHtml(dogClassName: string, cartSymbolContainerClassName:string, cartSymbolClassName: string) {
 
   for (let i = 0; i < productList.length; i++) {
     let dogproduct: HTMLDivElement = document.createElement("div");
-    let dogImgContainer: HTMLDivElement = document.createElement("div");
-    dogImgContainer.className = "dogimgcontainer";
+    
+    let dogImgContainer = createHtmlDogImgContainer(dogClassName)
     dogproduct.appendChild(dogImgContainer);
-    let dogImg: HTMLImageElement = document.createElement("img");
 
+    let dogImg: HTMLImageElement = document.createElement("img");
     dogImg.src = productList[i].picture;
     dogImg.alt = productList[i].pictureAlt;
 
@@ -104,12 +128,11 @@ export function createProductHtml() {
     });
 
     dogImgContainer.appendChild(dogImg);
-    let cartSymbolContainer: HTMLDivElement = document.createElement("div");
-    cartSymbolContainer.className = "cartSymbolContainer";
+
+    let cartSymbolContainer = createHtmlCartSymbolContainer(cartSymbolContainerClassName);
     dogImgContainer.appendChild(cartSymbolContainer);
 
-    let cartSymbol: HTMLElement = document.createElement("i");
-    cartSymbol.className = "bi bi-bag-plus";
+    let cartSymbol = createHtmlCartSymbol(cartSymbolClassName);
     cartSymbolContainer.appendChild(cartSymbol);
 
     let name: HTMLHeadingElement = document.createElement("h5");
@@ -130,12 +153,13 @@ export function createProductHtml() {
       productList[i].productSpec = !productList[i].productSpec;
       window.location.href = "product-spec.html#backArrow";
       let listastext = JSON.stringify(productList);
-      localStorage.setItem("savedList", listastext);
+      localStorage.setItem("savedProductList", listastext);
     });
 
     cartSymbol.addEventListener("click", () => {
       let cart = new Cart();
       cart.addToCart(i);
+      updateFloatingCart();
     });
 
     if (productList[i].category === "sassy") {
@@ -167,9 +191,11 @@ export function createProductHtml() {
     }
   }
   let listastext = JSON.stringify(productList);
-  localStorage.setItem("savedList", listastext);
+  localStorage.setItem("savedProductList", listastext);
   sessionStorage.clear();
 }
+
+
 
 /*
   3. Refaktorera funktionen getfromstorage
